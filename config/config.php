@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'user' => env('JWT_USER_CLASS', 'RainLab\User\Models\User'),
+    'user' => env('JWT_USER_CLASS', 'Vdomah\JWTAuth\Models\User'),
 
     /*
     |--------------------------------------------------------------------------
@@ -144,7 +144,7 @@ return [
         |
         */
 
-        'jwt' => env('JWT_PROVIDERS_JWT', 'Tymon\JWTAuth\Providers\JWT\NamshiAdapter'),
+        'jwt' => env('JWT_PROVIDERS_JWT', 'Tymon\JWTAuth\Providers\JWT\Namshi'),
 
         /*
         |--------------------------------------------------------------------------
@@ -155,7 +155,7 @@ return [
         |
         */
 
-        'auth' => env('JWT_PROVIDERS_AUTH', 'Tymon\JWTAuth\Providers\Auth\IlluminateAuthAdapter'),
+        'auth' => env('JWT_PROVIDERS_AUTH', 'Vdomah\JWTAuth\Classes\Auth'),
 
         /*
         |--------------------------------------------------------------------------
@@ -166,7 +166,7 @@ return [
         |
         */
 
-        'storage' => env('JWT_PROVIDERS_STORAGE', 'Tymon\JWTAuth\Providers\Storage\IlluminateCacheAdapter'),
+        'storage' => env('JWT_PROVIDERS_STORAGE', 'Tymon\JWTAuth\Providers\Storage\Illuminate'),
 
     ],
 

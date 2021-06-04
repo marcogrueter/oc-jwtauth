@@ -1,10 +1,11 @@
 <?php namespace Vdomah\JWTAuth;
 
-use Config;
-use RainLab\User\Models\User;
-use System\Classes\PluginBase;
 use App;
+use Config;
 use Illuminate\Foundation\AliasLoader;
+use Vdomah\JWTAuth\Models\User;
+use System\Classes\PluginBase;
+use Vdomah\JWTAuth\Classes\Auth;
 use Vdomah\JWTAuth\Models\Settings;
 
 class Plugin extends PluginBase
@@ -29,22 +30,23 @@ class Plugin extends PluginBase
                 'class'       => Settings::class,
                 'order'       => 500,
                 'keywords'    => 'jwt jwtauth',
-                'permissions' => ['vdomah.jwtauth.settings']
-            ]
+                'permissions' => ['vdomah.jwtauth.settings'],
+            ],
         ];
     }
 
-    public function boot()
+    public function register()
     {
-        if (empty(Config::get('auth'))) {
-            Config::set('auth', Config::get('vdomah.jwtauth::auth'));
+        $configItems = Config::get('vdomah.jwtauth::auth');
+
+        foreach ($configItems as $key => $values) {
+            if (empty(Config::get('auth.' . $key))) {
+                Config::set('auth.' . $key, $values);
+            }
         }
 
-        $this->app->bind(\Illuminate\Auth\AuthManager::class, function($app){
-            return new \Illuminate\Auth\AuthManager($app);
-        });
-
-        App::register('\Vdomah\JWTAuth\Classes\JWTAuthServiceProvider');
+        App::register('\Vdomah\JWTAuth\Classes\OctoberServiceProvider');
+        App::bind('JWTSubject', '\Vdomah\JWTAuth\Models\User');
 
         $facade = AliasLoader::getInstance();
         $facade->alias('JWTAuth', '\Tymon\JWTAuth\Facades\JWTAuth');
@@ -54,13 +56,7 @@ class Plugin extends PluginBase
             return new \Illuminate\Auth\AuthManager($app);
         });
 
-        $this->app['router']->middleware('jwt.auth', '\Tymon\JWTAuth\Middleware\GetUserFromToken');
-        $this->app['router']->middleware('jwt.refresh', '\Tymon\JWTAuth\Middleware\RefreshToken');
-
-        User::extend(function($model) {
-            $model->addDynamicMethod('getAuthApiAttributes', function () {
-                return [];
-            });
-        });
+        $this->app['router']->middleware('jwt.auth', '\Tymon\JWTAuth\Http\Middleware\Authenticate');
+        $this->app['router']->middleware('jwt.refresh', '\Tymon\JWTAuth\Http\Middleware\RefreshToken');
     }
 }

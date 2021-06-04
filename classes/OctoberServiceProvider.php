@@ -3,7 +3,7 @@
 use Config;
 use Vdomah\JWTAuth\Models\Settings;
 
-class JWTAuthServiceProvider extends \Tymon\JWTAuth\Providers\JWTAuthServiceProvider
+class OctoberServiceProvider extends \Tymon\JWTAuth\Providers\LaravelServiceProvider
 {
 
     /**
