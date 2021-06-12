@@ -4,12 +4,12 @@
 namespace Vdomah\JWTAuth\Controllers;
 
 use App;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use October\Rain\Support\Facades\Input;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\JWTAuth;
+use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
 use Vdomah\JWTAuth\Models\Settings;
 use Vdomah\JWTAuth\Resources\UserResource;
 
@@ -17,9 +17,20 @@ class AuthController extends Controller
 {
     protected $jwtAuth;
 
-    public function __construct(JWTAuth $jwtAuth)
+    public function __construct(OctoberJWTAuth $jwtAuth)
     {
         $this->jwtAuth = $jwtAuth;
+    }
+
+    public function user(Request $request)
+    {
+        if (Settings::get('is_invalidate_disabled')) {
+            App::abort(404, 'Page not found');
+        }
+
+        $this->jwtAuth->setRequest($request);
+
+        return new UserResource($this->jwtAuth->user());
     }
 
     public function signup(Request $request)
@@ -54,7 +65,7 @@ class AuthController extends Controller
             return Response::json(['error' => $e->getMessage()], 401);
         }
 
-        $token = JWTAuth::fromUser($userModel);
+        $token = $this->jwtAuth->fromUser($userModel);
 
         return Response::json(compact('token', 'user'));
     }
@@ -69,7 +80,7 @@ class AuthController extends Controller
 
         try {
             // invalidate the token
-            JWTAuth::invalidate($token);
+            $this->jwtAuth->invalidate($token);
         } catch (Exception $e) {
             // something went wrong
             return response()->json(['error' => 'could_not_invalidate_token'], 500);
@@ -89,7 +100,7 @@ class AuthController extends Controller
 
         try {
             // attempt to refresh the JWT
-            if (!$token = JWTAuth::refresh($token)) {
+            if (!$token = $this->jwtAuth->refresh($token)) {
                 return response()->json(['error' => 'could_not_refresh_token'], 401);
             }
         } catch (Exception $e) {

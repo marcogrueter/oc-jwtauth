@@ -59,7 +59,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => env('AUTH_PROVIDERS_USERS_DRIVER', 'eloquent'),
-            'model' => env('AUTH_PROVIDERS_USERS_MODEL', '\RainLab\User\Models\User'),
+            'model' => env('AUTH_PROVIDERS_USERS_MODEL', '\Vdomah\JWTAuth\Models\User'), // this will be set by the respective middleware
         ],
     ],
     /*

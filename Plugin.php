@@ -2,21 +2,16 @@
 
 use App;
 use Config;
-use Illuminate\Foundation\AliasLoader;
-use Vdomah\JWTAuth\Models\User;
 use System\Classes\PluginBase;
-use Vdomah\JWTAuth\Classes\Auth;
+use System\Classes\PluginManager;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Vdomah\JWTAuth\Models\Settings;
 
 class Plugin extends PluginBase
 {
-    /**
-     * @var array   Require the RainLab.User plugin
-     */
-    public $require = ['RainLab.User'];
-
     public function registerComponents()
     {
+        return [];
     }
 
     public function registerSettings()
@@ -45,18 +40,20 @@ class Plugin extends PluginBase
             }
         }
 
-        App::register('\Vdomah\JWTAuth\Classes\OctoberServiceProvider');
-        App::bind('JWTSubject', '\Vdomah\JWTAuth\Models\User');
+        App::register('\Vdomah\JWTAuth\Providers\OctoberServiceProvider');
 
-        $facade = AliasLoader::getInstance();
-        $facade->alias('JWTAuth', '\Tymon\JWTAuth\Facades\JWTAuth');
-        $facade->alias('JWTFactory', '\Tymon\JWTAuth\Facades\JWTFactory');
+        if ($this->app->runningInBackend()) {
+            App::singleton('Vdomah\JWTAuth\Contracts\JWTOctoberAuth', function () {
+                return \Vdomah\JWTAuth\Classes\JWTBackendOctoberAuthManager::instance();
+            });
+        } elseif (PluginManager::instance()->exists('Rainlab.User')) {
+            App::singleton('Vdomah\JWTAuth\Contracts\JWTOctoberAuth', function () {
+                return \Vdomah\JWTAuth\Classes\JWTOctoberAuthManager::instance();
+            });
+        }
 
-        App::singleton('auth', function ($app) {
-            return new \Illuminate\Auth\AuthManager($app);
+        App::error(function (\Tymon\JWTAuth\Exceptions\JWTException $exception) {
+            return response()->json(['status' => 'unauthorized'], 401);
         });
-
-        $this->app['router']->middleware('jwt.auth', '\Tymon\JWTAuth\Http\Middleware\Authenticate');
-        $this->app['router']->middleware('jwt.refresh', '\Tymon\JWTAuth\Http\Middleware\RefreshToken');
     }
 }
