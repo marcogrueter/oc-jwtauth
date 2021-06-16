@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Vdomah\JWTAuth\Classes;
-
 
 use Tymon\JWTAuth\JWTAuth;
 
