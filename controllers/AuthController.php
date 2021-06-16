@@ -5,32 +5,19 @@ namespace Vdomah\JWTAuth\Controllers;
 
 use App;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
 use October\Rain\Support\Facades\Input;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
 use Vdomah\JWTAuth\Models\Settings;
 use Vdomah\JWTAuth\Resources\UserResource;
 
-class AuthController extends Controller
+class AuthController extends BaseAPIController
 {
     protected $jwtAuth;
 
-    public function __construct(OctoberJWTAuth $jwtAuth)
+    public function user()
     {
-        $this->jwtAuth = $jwtAuth;
-    }
-
-    public function user(Request $request)
-    {
-        if (Settings::get('is_invalidate_disabled')) {
-            App::abort(404, 'Page not found');
-        }
-
-        $this->jwtAuth->setRequest($request);
-
-        return new UserResource($this->jwtAuth->user());
+        return new UserResource($this->authenticatedUser);
     }
 
     public function signup(Request $request)
