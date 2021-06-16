@@ -289,7 +289,7 @@ return [
         |
         */
 
-        'auth' => Vdomah\JWTAuth\Contracts\JWTOctoberAuth::class,
+        'auth' => Vdomah\JWTAuth\Contracts\OctoberAuthContract::class,
 
         /*
         |--------------------------------------------------------------------------

@@ -4,11 +4,12 @@ use App;
 use Config;
 use System\Classes\PluginBase;
 use System\Classes\PluginManager;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Vdomah\JWTAuth\Models\Settings;
 
 class Plugin extends PluginBase
 {
+    public $elevated = true;
+
     public function registerComponents()
     {
         return [];
@@ -43,11 +44,11 @@ class Plugin extends PluginBase
         App::register('\Vdomah\JWTAuth\Providers\OctoberServiceProvider');
 
         if ($this->app->runningInBackend()) {
-            App::singleton('Vdomah\JWTAuth\Contracts\JWTOctoberAuth', function () {
+            App::singleton('Vdomah\JWTAuth\Contracts\OctoberAuthContract', function () {
                 return \Vdomah\JWTAuth\Classes\JWTBackendOctoberAuthManager::instance();
             });
         } elseif (PluginManager::instance()->exists('Rainlab.User')) {
-            App::singleton('Vdomah\JWTAuth\Contracts\JWTOctoberAuth', function () {
+            App::singleton('Vdomah\JWTAuth\Contracts\OctoberAuthContract', function () {
                 return \Vdomah\JWTAuth\Classes\JWTOctoberAuthManager::instance();
             });
         }
